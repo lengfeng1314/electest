@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>潜力分析报告</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#0a0e17;color:#e8edf5;font-family:-apple-system,"PingFang SC",sans-serif;
+    min-height:100vh;padding:24px 16px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+  }
+  .card{
+    background:#131a26;border:1px solid #1e2a3d;border-radius:20px;
+    padding:32px 24px;max-width:420px;width:100%;text-align:center;
+  }
+  h1{font-size:22px;margin-bottom:24px}
+  .radar-wrap{display:flex;justify-content:center;margin-bottom:24px}
+  .overall{
+    font-size:56px;font-weight:700;line-height:1;margin-bottom:8px;
+    background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .rating{font-size:18px;font-weight:600;margin-bottom:8px}
+  .desc{font-size:13px;color:#6b7c93;margin-bottom:24px;line-height:1.6}
+  .dims{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+  .dim{background:#0f1620;border-radius:10px;padding:12px;text-align:left}
+  .dim .name{font-size:11px;color:#6b7c93}
+  .dim .val{font-size:20px;font-weight:600;margin-top:4px}
+  .bar{height:4px;background:#1e2a3d;border-radius:2px;margin-top:8px;overflow:hidden}
+  .bar-inner{height:100%;border-radius:2px}
+  a.btn{
+    display:block;background:#2563eb;color:#fff;text-decoration:none;
+    border-radius:12px;padding:14px;font-size:15px;font-weight:600;
+  }
+.disclaimer{
+  font-size:10px;
+  color:#4a5a70;
+  margin-top:18px;
+  line-height:1.7;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>冷风游戏潜力分析报告</h1>
+  <div class="radar-wrap"><canvas id="radar" width="280" height="280"></canvas></div>
+  <div class="overall" id="overall">-</div>
+  <div class="rating" id="rating">-</div>
+  <div class="desc" id="desc">-</div>
+  <div class="dims" id="dims"></div>
+  <a href="index.html" class="btn">返回首页</a>
+<div class="disclaimer">
+  本系统评分基准参考国际电竞赛事公开数据<br>
+  及公开学术研究中职业选手与普通玩家的统计差异，<br>
+  综合评分算法为自主设计，结果仅供娱乐参考。
+</div>
+</div>
+<script src="shared.js"></script>
+<script>
+(function(){
+  var dims=[
+    {key:'reaction',name:'反应速度'},
+    {key:'aim',name:'瞄准精度'},
+    {key:'apm',name:'手速 APM'},
+    {key:'peripheral',name:'周边视野'}
+  ];
+  var scores={},rawScores={};
+  dims.forEach(function(d){
+    scores[d.key]=getScore(d.key+'_dim');
+    rawScores[d.key]=getScore(d.key+'_raw');
+  });
+  var overall=calcOverall(scores);
+  var rating=getRating(overall);
+  document.getElementById('overall').textContent=overall;
+  document.getElementById('rating').textContent=rating.level;
+  document.getElementById('desc').textContent=rating.desc;
+
+  var dimsEl=document.getElementById('dims');
+  var colors=['#60a5fa','#4ade80','#fbbf24','#f472b6'];
+  dims.forEach(function(d,i){
+    var s=scores[d.key]||0;
+    var raw=rawScores[d.key];
+    var unit=d.key==='reaction'?'ms':(d.key==='aim'?'%':(d.key==='apm'?'':'°'));
+    var div=document.createElement('div');
+    div.className='dim';
+    div.innerHTML='<div class="name">'+d.name+'</div>'+
+      '<div class="val">'+(raw!==null?Math.round(raw)+unit:'未测')+'</div>'+
+      '<div class="bar"><div class="bar-inner" style="width:'+s+'%;background:'+colors[i]+'"></div></div>';
+    dimsEl.appendChild(div);
+  });
+
+  var canvas=document.getElementById('radar');
+  var ctx=canvas.getContext('2d');
+  var cx=140,cy=140,r=100,n=4;
+  var angles=[-Math.PI/2,0,Math.PI/2,Math.PI];
+
+  for(var level=1;level<=4;level++){
+    ctx.beginPath();
+    var lr=r*level/4;
+    for(var i=0;i<=n;i++){
+      var a=angles[i%n];
+      var x=cx+lr*Math.cos(a);
+      var y=cy+lr*Math.sin(a);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle='#1e2a3d';
+    ctx.stroke();
+  }
+  angles.forEach(function(a){
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+    ctx.strokeStyle='#1e2a3d';
+    ctx.stroke();
+  });
+  ctx.beginPath();
+  dims.forEach(function(d,i){
+    var s=(scores[d.key]||0)/100;
+    var a=angles[i];
+    var x=cx+r*s*Math.cos(a);
+    var y=cy+r*s*Math.sin(a);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(96,165,250,0.25)';
+  ctx.fill();
+  ctx.strokeStyle='#60a5fa';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  ctx.fillStyle='#6b7c93';
+  ctx.font='11px sans-serif';
+  ctx.textAlign='center';
+  var labels=['反应','瞄准','手速','视野'];
+  labels.forEach(function(l,i){
+    var a=angles[i];
+    var lx=cx+(r+22)*Math.cos(a);
+    var ly=cy+(r+22)*Math.sin(a)+4;
+    ctx.fillText(l,lx,ly);
+  });
+})();
+</script>
+</body>
+</html>

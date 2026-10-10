@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>冷风游戏潜力测试</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    height:100%;overflow:hidden;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#0a0410;color:#e8edf5;
+    user-select:none;-webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .bg{
+    position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 50% 40%,rgba(139,0,80,.35),transparent 60%),
+      radial-gradient(circle at 50% 100%,rgba(80,0,120,.4),transparent 60%),
+      #0a0410;
+    z-index:0;
+  }
+  .beam{
+    position:fixed;height:1px;left:-20%;right:-20%;
+    background:linear-gradient(90deg,transparent,#ff2d78,#ff2d78,transparent);
+    box-shadow:0 0 12px #ff2d78;
+    z-index:1;opacity:.7;
+  }
+  .beam.b1{top:22%;transform:rotate(-8deg)}
+  .beam.b2{top:78%;transform:rotate(8deg);
+    background:linear-gradient(90deg,transparent,#a020f0,#a020f0,transparent);
+    box-shadow:0 0 12px #a020f0}
+  .radar{
+    position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);
+    width:340px;height:340px;z-index:1;border-radius:50%;
+    border:1px solid rgba(255,45,120,.18);
+  }
+  .radar::before{
+    content:'';position:absolute;inset:40px;border-radius:50%;
+    border:1px solid rgba(160,32,240,.18);
+  }
+  .radar::after{
+    content:'';position:absolute;inset:90px;border-radius:50%;
+    border:1px solid rgba(255,45,120,.12);
+  }
+  .sweep{
+    position:absolute;left:50%;top:50%;
+    width:50%;height:50%;
+    transform-origin:0 0;
+    background:conic-gradient(from 0deg,rgba(255,45,120,.35),transparent 25%);
+    border-radius:100% 0 0 0;
+    animation:sweep 4s linear infinite;
+  }
+  @keyframes sweep{to{transform:rotate(360deg)}}
+
+  .content{
+    position:relative;z-index:10;
+    height:100%;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;
+    padding:0 30px;text-align:center;
+  }
+  .tag{
+    font-size:11px;letter-spacing:6px;color:#ff2d78;
+    border:1px solid rgba(255,45,120,.5);
+    padding:6px 14px;border-radius:20px;
+    margin-bottom:28px;text-shadow:0 0 8px #ff2d78;
+  }
+  h1{
+    font-size:38px;font-weight:900;letter-spacing:2px;
+    font-style:italic;line-height:1.15;
+    background:linear-gradient(120deg,#fff,#ff2d78 40%,#a020f0);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+    filter:drop-shadow(0 0 14px rgba(255,45,120,.6));
+    margin-bottom:16px;
+  }
+  .sub{
+    font-size:13px;color:#c8a8d8;letter-spacing:4px;
+    margin-bottom:60px;
+  }
+  .pulse{
+    width:14px;height:14px;border-radius:50%;
+    background:#ff2d78;box-shadow:0 0 20px #ff2d78;
+    margin-bottom:56px;position:relative;
+  }
+  .pulse::before,.pulse::after{
+    content:'';position:absolute;inset:0;border-radius:50%;
+    border:1px solid #ff2d78;
+    animation:ripple 2s ease-out infinite;
+  }
+  .pulse::after{animation-delay:1s}
+  @keyframes ripple{
+    0%{transform:scale(1);opacity:1}
+    100%{transform:scale(4);opacity:0}
+  }
+  .enter-btn{
+    position:relative;width:100%;max-width:280px;
+    background:transparent;color:#fff;
+    border:1px solid #ff2d78;border-radius:4px;
+    padding:18px;font-size:17px;font-weight:700;
+    letter-spacing:10px;cursor:pointer;overflow:hidden;
+    transition:color .2s;
+  }
+  .enter-btn::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,#ff2d78,#a020f0);
+    transform:translateX(-100%);
+    transition:transform .3s;z-index:-1;
+  }
+  .enter-btn:active{color:#0a0410}
+  .enter-btn:active::before{transform:translateX(0)}
+  .enter-btn span{position:relative;z-index:1}
+
+  .footer{
+    position:fixed;left:0;right:0;bottom:0;
+    padding:14px 18px;
+    display:flex;justify-content:space-between;align-items:flex-end;
+    z-index:10;font-size:12px;line-height:1.8;
+  }
+  .footer-left{color:#ff2d78;text-align:left}
+  .footer-left .qq{color:#ffd700}
+  .footer-left .ver{
+    color:#6a4a7a;font-size:10px;margin-top:4px;display:block;
+  }
+  .footer-right{text-align:center}
+  .footer-right img{
+    width:88px;border-radius:8px;display:block;
+    border:1px solid #ff2d78;
+    box-shadow:0 0 10px rgba(255,45,120,.5);
+  }
+  .footer-right .tip{
+    font-size:10px;color:#ff2d78;margin-top:4px;
+  }
+
+  /* ===== 激活码弹窗 ===== */
+  .modal{
+    position:fixed;inset:0;
+    background:rgba(10,4,16,.9);
+    display:none;align-items:center;justify-content:center;
+    z-index:100;padding:24px;
+  }
+  .modal.show{display:flex}
+  .modal-box{
+    background:#12061c;
+    border:1px solid #ff2d78;
+    border-radius:8px;
+    padding:28px 22px;
+    width:100%;max-width:300px;
+    text-align:center;
+    box-shadow:0 0 30px rgba(255,45,120,.5);
+    animation:pop .25s ease-out;
+  }
+  @keyframes pop{
+    from{transform:scale(.85);opacity:0}
+    to{transform:scale(1);opacity:1}
+  }
+  .modal-box h3{
+    font-size:15px;color:#ff2d78;
+    margin-bottom:18px;letter-spacing:4px;
+  }
+  .modal-box input{
+    width:100%;padding:14px;
+    background:#0a0410;
+    border:1px solid #3a1a4a;
+    border-radius:4px;
+    color:#e8edf5;font-size:15px;
+    text-align:center;letter-spacing:2px;
+    margin-bottom:12px;outline:none;
+  }
+  .modal-box input:focus{
+    border-color:#ff2d78;
+    box-shadow:0 0 10px rgba(255,45,120,.4);
+  }
+  .modal-box .err{
+    color:#ff6b8a;font-size:12px;
+    margin-bottom:10px;display:none;
+  }
+  .modal-box .err.show{display:block}
+  .modal-box button{
+    width:100%;padding:12px;
+    border:none;border-radius:4px;
+    font-size:14px;font-weight:600;
+    cursor:pointer;margin-bottom:8px;
+    letter-spacing:2px;
+  }
+  .modal-box .confirm{
+    background:linear-gradient(90deg,#ff2d78,#a020f0);
+    color:#fff;
+    box-shadow:0 0 12px rgba(255,45,120,.5);
+  }
+  .modal-box .cancel{
+    background:transparent;color:#6a4a7a;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="beam b1"></div>
+<div class="beam b2"></div>
+<div class="radar"><div class="sweep"></div></div>
+
+<div class="content">
+  <div class="tag">ESPORTS TEST</div>
+  <h1>冷风欢迎你</h1>
+  <div class="sub">游戏潜力测试</div>
+  <div class="pulse"></div>
+  <button class="enter-btn" id="enterBtn"><span>进 入</span></button>
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    制作不易 QQ：<span class="qq">3693465571</span><br>
+    觉得好用，欢迎打赏~
+    <span class="ver">v1.0 冷风游戏潜力测试</span>
+  </div>
+  <div class="footer-right">
+    <img src="wx.png" alt="微信赞赏码">
+    <div class="tip">扫码鼓励</div>
+  </div>
+</div>
+
+<!-- 激活码弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>请输入激活码</h3>
+    <input type="text" id="codeInput" placeholder="请输入激活码" autocomplete="off">
+    <div class="err" id="errMsg">激活码错误，请重新输入</div>
+    <button class="confirm" id="confirmBtn">确 认</button>
+    <button class="cancel" id="cancelBtn">取 消</button>
+  </div>
+</div>
+
+<script>
+  var codes = ['lengfeng666', 'lengfeng888', 'lengfeng999'];
+  var modal = document.getElementById('modal');
+  var input = document.getElementById('codeInput');
+  var err = document.getElementById('errMsg');
+
+  document.getElementById('enterBtn').addEventListener('click', function(){
+    modal.classList.add('show');
+    input.value = '';
+    err.classList.remove('show');
+    setTimeout(function(){ input.focus(); }, 150);
+  });
+
+  document.getElementById('cancelBtn').addEventListener('click', function(){
+    modal.classList.remove('show');
+  });
+
+  function check(){
+    var v = input.value.trim();
+    if (codes.indexOf(v) !== -1) {
+      window.location.href = 'reaction.html';
+    } else {
+      err.classList.add('show');
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  document.getElementById('confirmBtn').addEventListener('click', check);
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') check();
+  });
+</script>
+
+</body>
+</html>

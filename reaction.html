@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>反应速度测试</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,"PingFang SC",sans-serif;
+    background:#0a0e17;color:#e8edf5;min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;user-select:none;-webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .card{
+    background:#131a26;border:1px solid #1e2a3d;border-radius:20px;
+    padding:32px 24px;max-width:420px;width:100%;text-align:center;
+  }
+  h1{font-size:22px;margin-bottom:6px}
+  .sub{font-size:13px;color:#6b7c93;margin-bottom:28px}
+  #zone{
+    background:#1a2436;border:2px solid #2a3a52;border-radius:16px;
+    height:220px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:600;cursor:pointer;
+    transition:background .15s,border-color .15s;
+    margin-bottom:20px;padding:16px;line-height:1.5;
+  }
+  #zone.waiting{background:#1f2a3d;border-color:#3a4f6e}
+  #zone.ready{background:#0d2818;border-color:#1a5c32;color:#4ade80}
+  #zone.toosoon{background:#2d1215;border-color:#6b1f24;color:#f87171}
+  #zone.result{background:#101d2e;border-color:#1e3a5f}
+  .big{font-size:48px;font-weight:700;display:block;margin-bottom:4px}
+  .unit{font-size:16px;color:#6b7c93;font-weight:400}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .stat{background:#0f1620;border-radius:12px;padding:12px 8px}
+  .stat .label{font-size:11px;color:#6b7c93;margin-bottom:4px}
+  .stat .value{font-size:18px;font-weight:600}
+  .verdict{font-size:14px;padding:12px;border-radius:10px;margin-bottom:20px;line-height:1.6}
+  .verdict.pro{background:#0d2818;color:#4ade80}
+  .verdict.good{background:#1a2436;color:#60a5fa}
+  .verdict.avg{background:#1f1a0d;color:#fbbf24}
+  .verdict.slow{background:#2d1215;color:#f87171}
+  button{
+    background:#2563eb;color:#fff;border:none;border-radius:12px;
+    padding:14px 28px;font-size:16px;font-weight:600;cursor:pointer;width:100%;
+  }
+  .hidden{display:none}
+  .ref{font-size:11px;color:#4a5a70;margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>反应速度测试</h1>
+  <div class="sub">测测你离职业选手差多少</div>
+  <div id="zone" class="waiting">点击开始测试</div>
+  <div class="stats hidden" id="stats">
+    <div class="stat"><div class="label">本次</div><div class="value" id="last">-</div></div>
+    <div class="stat"><div class="label">平均</div><div class="value" id="avg">-</div></div>
+    <div class="stat"><div class="label">最快</div><div class="value" id="best">-</div></div>
+  </div>
+  <div class="verdict hidden" id="verdict"></div>
+  <button id="resetBtn" class="hidden">重新测试</button>
+  <div class="ref">参考：职业选手最佳约 225ms<br>普通玩家约 291-413ms</div>
+</div>
+<script src="shared.js"></script>
+<script>
+(function(){
+  var zone=document.getElementById('zone');
+  var statsEl=document.getElementById('stats');
+  var lastEl=document.getElementById('last');
+  var avgEl=document.getElementById('avg');
+  var bestEl=document.getElementById('best');
+  var verdictEl=document.getElementById('verdict');
+  var resetBtn=document.getElementById('resetBtn');
+  var TOTAL=5;
+  var results=[],state='idle',timer=null,startTime=0;
+  function fmt(ms){return Math.round(ms)+'ms';}
+  function reset(){
+    results=[];state='idle';clearTimeout(timer);
+    zone.className='waiting';zone.innerHTML='点击开始测试';
+    statsEl.classList.add('hidden');
+    verdictEl.classList.add('hidden');
+    resetBtn.classList.add('hidden');
+  }
+  function startRound(){
+    state='waiting';zone.className='waiting';zone.innerHTML='等待绿色...';
+    var delay=1500+Math.random()*2500;
+    timer=setTimeout(function(){
+      state='ready';zone.className='ready';zone.innerHTML='点击！';
+      startTime=performance.now();
+    },delay);
+  }
+  function handleClick(){
+  // 如果已经测完，重置重新开始
+  if(state==='done'){reset();startRound();return;}
+  // 还没开始，开始第一轮
+  if(state==='idle'){startRound();return;}
+  // 等待绿色时点击 = 太早
+  if(state==='waiting'){
+    clearTimeout(timer);state='idle';
+    zone.className='toosoon';
+    zone.innerHTML='太早了！<br><span style="font-size:14px">点击重新开始</span>';
+    return;
+  }
+  // 绿色亮起，记录成绩
+  if(state==='ready'){
+    var rt=performance.now()-startTime;
+    results.push(rt);
+    if(results.length>=TOTAL){
+      showResults();
+    } else {
+      // 进入下一轮等待
+      zone.className='result';
+      zone.innerHTML='<span class="big">'+fmt(rt)+'</span><span class="unit">第 '+results.length+'/'+TOTAL+' 次 · 点击继续</span>';
+      state='idle'; // 关键：回到 idle，下一次点击会走 startRound
+    }
+  }
+}
+  function showResults(){
+    state='done';
+    var avg=results.reduce(function(a,b){return a+b;},0)/results.length;
+    var best=Math.min.apply(null,results);
+    lastEl.textContent=fmt(results[results.length-1]);
+    avgEl.textContent=fmt(avg);
+    bestEl.textContent=fmt(best);
+    statsEl.classList.remove('hidden');
+    var cls,text;
+    if(avg<=225){cls='pro';text='🔥 职业选手级别！';}
+    else if(avg<=280){cls='good';text='💪 优秀！接近职业门槛。';}
+    else if(avg<=350){cls='avg';text='📊 普通水平，多练能进步。';}
+    else{cls='slow';text='🐢 偏慢，休息后再试。';}
+    verdictEl.className='verdict '+cls;
+    verdictEl.textContent=text;
+    verdictEl.classList.remove('hidden');
+    zone.className='result';
+    zone.innerHTML='<span class="big">'+fmt(avg)+'</span><span class="unit">平均反应速度</span>';
+    resetBtn.classList.remove('hidden');
+    saveScore('reaction_raw',Math.round(avg));
+    saveScore('reaction_dim',calcDimScore(avg,BENCHMARK.reaction.pro,BENCHMARK.reaction.avg,true));
+    setTimeout(function(){location.href='aim.html';},2500);
+  }
+  zone.addEventListener('click',handleClick);
+  resetBtn.addEventListener('click',function(e){e.stopPropagation();reset();startRound();});
+  zone.addEventListener('touchstart',function(e){e.preventDefault();handleClick();},{passive:false});
+  reset();
+})();
+</script>
+</body>
+</html>

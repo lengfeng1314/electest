@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>周边视野测试</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#0a0e17;color:#e8edf5;font-family:-apple-system,"PingFang SC",sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;padding:16px;user-select:none;
+    -webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+  }
+  h2{font-size:20px;margin-bottom:8px}
+  .info{font-size:13px;color:#6b7c93;margin-bottom:16px;text-align:center;line-height:1.6}
+  #arena{
+    background:#131a26;border:1px solid #1e2a3d;border-radius:16px;
+    width:100%;max-width:400px;height:400px;position:relative;overflow:hidden;
+  }
+  #fixation{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:12px;height:12px;border-radius:50%;background:#f472b6;
+    box-shadow:0 0 12px #f472b6;
+  }
+  .flash{
+    position:absolute;width:32px;height:32px;border-radius:50%;
+    background:#4ade80;box-shadow:0 0 16px #4ade80;
+    animation:flash .6s ease-out forwards;
+  }
+  @keyframes flash{
+    0%{opacity:1;transform:scale(1)}
+    100%{opacity:0;transform:scale(1.6)}
+  }
+  .stats{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    width:100%;max-width:400px;margin-top:16px;
+  }
+  .stat{background:#131a26;border-radius:12px;padding:14px;text-align:center}
+  .stat .label{font-size:11px;color:#6b7c93}
+  .stat .value{font-size:22px;font-weight:600}
+  button{
+    margin-top:20px;background:#2563eb;color:#fff;border:none;border-radius:12px;
+    padding:14px 40px;font-size:16px;font-weight:600;cursor:pointer;width:100%;max-width:400px;
+  }
+  button:disabled{background:#1e2a3d;color:#4a5a70}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<h2>周边视野测试</h2>
+<div class="info">紧盯中央粉点，看到边缘闪光时点击屏幕<br>测你的周边感知范围</div>
+<div id="arena"><div id="fixation"></div></div>
+<div class="stats hidden" id="stats">
+  <div class="stat"><div class="label">最大角度</div><div class="value" id="maxAngle">-</div></div>
+  <div class="stat"><div class="label">当前轮次</div><div class="value" id="round">0/10</div></div>
+</div>
+<button id="startBtn">开始测试</button>
+<script src="shared.js"></script>
+<script>
+(function(){
+  var arena=document.getElementById('arena');
+  var statsEl=document.getElementById('stats');
+  var maxAngleEl=document.getElementById('maxAngle');
+  var roundEl=document.getElementById('round');
+  var startBtn=document.getElementById('startBtn');
+  var currentRound=0,maxAngle=0,active=false,flashTimer=null,angle=0;
+
+  function showFlash(){
+    if(!active||currentRound>=10)return;
+    angle=120+currentRound*6;
+    var rad=angle*Math.PI/180;
+    var cx=arena.clientWidth/2;
+    var cy=arena.clientHeight/2;
+    var r=Math.min(cx,cy)-30;
+    var x=cx+r*Math.cos(rad);
+    var y=cy+r*Math.sin(rad);
+    var f=document.createElement('div');
+    f.className='flash';
+    f.style.left=(x-16)+'px';
+    f.style.top=(y-16)+'px';
+    arena.appendChild(f);
+    setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},700);
+    flashTimer=setTimeout(function(){
+      currentRound++;
+      roundEl.textContent=currentRound+'/10';
+      if(currentRound>=10)finish();else showFlash();
+    },2000);
+  }
+
+  function seen(){
+    if(!active)return;
+    clearTimeout(flashTimer);
+    maxAngle=Math.max(maxAngle,angle);
+    maxAngleEl.textContent=maxAngle+'°';
+    currentRound++;
+    roundEl.textContent=currentRound+'/10';
+    if(currentRound>=10)finish();else showFlash();
+  }
+
+  function finish(){
+    active=false;
+    startBtn.disabled=false;
+    startBtn.textContent='再测一次';
+    saveScore('peripheral_raw',maxAngle);
+    saveScore('peripheral_dim',calcDimScore(maxAngle,BENCHMARK.peripheral.pro,BENCHMARK.peripheral.avg,false));
+    setTimeout(function(){location.href='report.html';},2500);
+  }
+
+  arena.addEventListener('click',function(){if(active)seen();});
+
+  startBtn.addEventListener('click',function(){
+    if(active)return;
+    active=true;
+    currentRound=0;maxAngle=0;
+    maxAngleEl.textContent='-';
+    roundEl.textContent='0/10';
+    statsEl.classList.remove('hidden');
+    startBtn.disabled=true;
+    startBtn.textContent='测试中...';
+    showFlash();
+  });
+})();
+</script>
+</body>
+</html>
