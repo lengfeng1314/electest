@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>冷风格斗1基础版 · 冷风</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#050a12;font-family:'PingFang SC','Microsoft YaHei',sans-serif}
+#封面{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;background:radial-gradient(ellipse at 20% 30%,rgba(80,180,255,.18),transparent 55%),radial-gradient(ellipse at 80% 70%,rgba(160,80,255,.15),transparent 55%),radial-gradient(ellipse at 50% 50%,#0a1a2e 0%,#050a12 80%);overflow:hidden}
+#封面::before{content:'';position:absolute;inset:-50%;background:repeating-linear-gradient(115deg,transparent 0,transparent 40px,rgba(120,200,255,.05) 40px,rgba(120,200,255,.05) 42px),repeating-linear-gradient(-65deg,transparent 0,transparent 55px,rgba(180,120,255,.04) 55px,rgba(180,120,255,.04) 57px);animation:线移 24s linear infinite;pointer-events:none}
+@keyframes 线移{from{transform:translate(0,0)}to{transform:translate(60px,60px)}}
+.光环{position:absolute;border-radius:50%;border:1px solid rgba(120,200,255,.35);box-shadow:0 0 40px rgba(80,180,255,.4) inset,0 0 30px rgba(80,180,255,.25);animation:环转 30s linear infinite;pointer-events:none}
+.光环.一{width:520px;height:520px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.光环.二{width:380px;height:380px;top:50%;left:50%;transform:translate(-50%,-50%);animation-duration:20s;animation-direction:reverse;border-color:rgba(200,120,255,.3)}
+.光环.三{width:260px;height:260px;top:50%;left:50%;transform:translate(-50%,-50%);animation-duration:14s;border-color:rgba(120,220,255,.45)}
+@keyframes 环转{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+.封面内容{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;width:100%;height:100%}
+.封面小标{font-size:13px;letter-spacing:8px;color:#7fc6ff;padding:4px 22px;border:1px solid rgba(120,200,255,.6);border-radius:30px;margin-bottom:8px;background:rgba(20,40,70,.4);box-shadow:0 0 18px rgba(80,180,255,.3);text-shadow:0 0 10px rgba(120,200,255,.8)}
+.封面标题{font-size:52px;font-weight:900;letter-spacing:6px;background:linear-gradient(180deg,#fff 0%,#7fc6ff 60%,#3a86c8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;text-shadow:0 0 40px rgba(80,180,255,.6);filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));line-height:1.1}
+.封面副标{font-size:16px;color:#8fb8d8;letter-spacing:6px;margin-top:2px;text-shadow:0 0 10px rgba(80,180,255,.4)}
+.激活区{margin-top:22px;display:flex;gap:10px;align-items:center}
+#激活码输入{width:240px;height:46px;background:rgba(10,25,45,.85);border:1.5px solid rgba(120,200,255,.5);border-radius:10px;color:#dff0ff;font-size:15px;letter-spacing:3px;text-align:center;outline:none;box-shadow:0 0 18px rgba(80,180,255,.2) inset;font-family:inherit}
+#激活码输入:focus{border-color:#7fc6ff;box-shadow:0 0 22px rgba(120,200,255,.5),0 0 22px rgba(120,200,255,.3) inset}
+.进入钮{height:46px;padding:0 32px;border-radius:10px;border:none;background:linear-gradient(180deg,#4fa4e8,#1e5d9c);color:#fff;font-size:15px;font-weight:700;letter-spacing:6px;box-shadow:0 0 20px rgba(80,180,255,.6),0 4px 0 #0a2a48;cursor:pointer;font-family:inherit;transition:all .08s}
+.进入钮:active{transform:translateY(3px);box-shadow:0 0 28px rgba(120,200,255,.8),0 1px 0 #0a2a48}
+#激活提示{height:20px;font-size:13px;letter-spacing:2px;color:#ff8080;margin-top:6px;text-shadow:0 0 8px rgba(255,80,80,.6)}
+#激活提示.对{color:#7fffbf;text-shadow:0 0 8px rgba(80,255,160,.6)}
+.封面底{position:absolute;bottom:16px;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 22px;z-index:2}
+.底左{text-align:left}
+.底左 .行一{font-size:14px;color:#ffb8b8;font-weight:700;text-shadow:0 0 10px rgba(255,120,120,.6);margin-bottom:3px}
+.底左 .行二{font-size:12.5px;color:#8fb8d8;letter-spacing:.5px}
+.底左 .版本{font-size:11px;color:#4a7a9c;margin-top:6px;letter-spacing:1px}
+.底右{display:flex;flex-direction:column;align-items:center;gap:4px}
+.赞赏码{width:78px;height:78px;border-radius:8px;background:#fff;padding:3px;box-shadow:0 0 20px rgba(120,200,255,.5),0 0 0 1px rgba(120,200,255,.4);display:block;object-fit:cover}
+.底右 .字{font-size:11px;color:#ff9a9a;letter-spacing:2px;text-shadow:0 0 8px rgba(255,120,120,.5)}
+#游戏{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;background:#0a1622}
+#游戏.显示{display:flex}
+#画布区{position:relative;flex:1;overflow:hidden;background:#0a1622}
+canvas{display:block;width:100%;height:100%;touch-action:none;position:absolute}
+#血条层{position:absolute;top:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 18px;pointer-events:none;z-index:5}
+.血条盒{width:40%;max-width:340px}
+.血条名{font-size:12px;color:#d6ecff;margin-bottom:2px;text-shadow:0 1px 2px #000;font-weight:600;letter-spacing:1px}
+.血条外{width:100%;height:15px;background:#0d1c2b;border:2px solid #7fb2e5;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px #000a inset,0 0 8px #3a6b9a}
+.血条内{height:100%;width:100%;background:linear-gradient(90deg,#4fc3ff,#2196f3);transition:width .18s ease-out}
+.血条内.敌方{background:linear-gradient(90deg,#ff6b6b,#c0392b)}
+#播报{position:absolute;top:60px;left:50%;transform:translateX(-50%) scale(0.6);font-size:30px;font-weight:900;letter-spacing:5px;color:#9fd4ff;text-shadow:0 0 20px #2c7ec0,0 0 40px #2c7ec0;opacity:0;transition:opacity .18s,transform .18s;z-index:7;pointer-events:none;white-space:nowrap}
+#播报.显{opacity:1;transform:translateX(-50%) scale(1)}
+#播报.冰{color:#a8e8ff;text-shadow:0 0 20px #4fc3ff,0 0 40px #4fc3ff}
+#播报.风{color:#d8b0ff;text-shadow:0 0 20px #a060ff,0 0 40px #a060ff}
+#横屏提示{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(4,12,20,.75);color:#9fd4ff;font-size:22px;letter-spacing:6px;text-shadow:0 0 20px #2c7ec0;pointer-events:none;opacity:1;transition:opacity .5s}
+#横屏提示.隐{opacity:0}
+#控制层{position:relative;z-index:6;padding:6px 16px 4px;background:linear-gradient(to top,#040b13,#0d1f30);border-top:2px solid #2e5a7d;display:flex;justify-content:space-between;align-items:center}
+.按组{display:flex;gap:10px;align-items:center}
+.钮{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#3f688f,#1c2f42);border:2.5px solid #9fc9e7;color:#e8f4ff;font-size:20px;font-weight:700;display:flex;justify-content:center;align-items:center;box-shadow:0 4px 0 #06111c,0 5px 10px #000a;cursor:pointer;transition:transform .05s,box-shadow .05s;font-family:inherit}
+.钮:active{transform:translateY(3px);box-shadow:0 1px 0 #06111c,0 2px 6px #000a;background:radial-gradient(circle at 30% 25%,#507ea8,#243a52)}
+.钮.技能{background:radial-gradient(circle at 30% 25%,#6a4fa8,#2c1a52);border-color:#c9a7ff;color:#f0e6ff;box-shadow:0 4px 0 #180a30,0 5px 10px #000a,0 0 14px #8a5fff88;position:relative}
+.钮.技能:active{box-shadow:0 1px 0 #180a30,0 2px 6px #000a,0 0 22px #b88affcc}
+.钮.防{background:radial-gradient(circle at 30% 25%,#2f7f5f,#0e3324);border-color:#8fe0b0;color:#d8ffe8;box-shadow:0 4px 0 #04130c,0 5px 10px #000a}
+.钮.防:active{background:radial-gradient(circle at 30% 25%,#4aa078,#155c3d)}
+.钮.小{width:48px;height:48px;font-size:16px}
+.冷遮{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(0,0,0,.68) var(--角度,0deg),transparent 0);pointer-events:none}
+#品牌条{text-align:center;padding:3px 10px 5px;background:#040b13;color:#a8cbe8;font-size:11px;letter-spacing:.6px;border-top:1px solid #1f3d54}
+#品牌条 .冷{color:#6fc3ff;font-weight:700}
+#品牌条 .qq{display:inline-block;margin-left:6px;padding:1px 9px;border-radius:20px;background:#152a3d;border:1px solid #3d6b8c;color:#b7ddff;font-weight:600}
+#遮罩{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(4,12,20,.86);color:#e0f0ff;text-align:center;padding:20px;transition:opacity .3s}
+#遮罩.隐藏{opacity:0;pointer-events:none}
+#遮罩 h1{font-size:34px;margin-bottom:4px;letter-spacing:5px;color:#9fd4ff;text-shadow:0 0 22px #2c7ec0}
+#遮罩 h2{font-size:14px;color:#7fa8c8;margin-bottom:22px;letter-spacing:3px;font-weight:400}
+#遮罩 .按钮{padding:13px 48px;border-radius:40px;background:linear-gradient(180deg,#3f7fb8,#1e4f7c);color:#fff;font-size:18px;font-weight:700;letter-spacing:4px;border:2px solid #9fd4ff;box-shadow:0 5px 0 #0a1e2f,0 8px 16px #000a;cursor:pointer;font-family:inherit}
+#遮罩 .按钮:active{transform:translateY(3px);box-shadow:0 2px 0 #0a1e2f}
+#遮罩 .结果{font-size:24px;margin-bottom:18px;color:#ffd97a;letter-spacing:3px;text-shadow:0 0 18px #ff8000}
+#遮罩 .小字{margin-top:16px;font-size:11px;color:#5c7f9c;letter-spacing:1px}
+@media(max-width:760px){.钮{width:48px;height:48px;font-size:17px}.钮.小{width:42px;height:42px;font-size:14px}.按组{gap:6px}#遮罩 h1{font-size:26px}.封面标题{font-size:38px}.光环.一{width:400px;height:400px}.光环.二{width:290px;height:290px}.光环.三{width:200px;height:200px}#激活码输入{width:200px;font-size:14px}.进入钮{padding:0 24px;font-size:14px;letter-spacing:4px}}
+</style>
+</head><body>
+
+<div id="封面">
+  <div class="光环 一"></div>
+  <div class="光环 二"></div>
+  <div class="光环 三"></div>
+  <div class="封面内容">
+    <div class="封面小标">COLD WIND · FIGHTING</div>
+    <div class="封面标题">冷风格斗</div>
+    <div class="封面副标">第一基础版</div>
+    <div class="激活区">
+      <input id="激活码输入" type="text" placeholder="输入激活码" maxlength="20" autocomplete="off">
+      <button class="进入钮" id="进入钮">进入</button>
+    </div>
+    <div id="激活提示"></div>
+  </div>
+  <div class="封面底">
+    <div class="底左">
+      <div class="行一">❄ 制作不易 ❄</div>
+      <div class="行二">觉得好用，欢迎打赏~</div>
+      <div class="行二" style="margin-top:4px;">QQ客服：3693465571</div>
+      <div class="版本">v1.0 冷风游戏潜力测试</div>
+    </div>
+    <div class="底右">
+      <img class="赞赏码" src="wx.png" alt="赞赏码">
+      <div class="字">扫码鼓励</div>
+    </div>
+  </div>
+</div>
+
+<div id="游戏">
+  <div id="画布区">
+    <canvas id="画布"></canvas>
+    <div id="横屏提示">
+      <div style="font-size:48px;margin-bottom:10px;">📱↔️</div>
+      <div>建议横屏使用</div>
+    </div>
+    <div id="血条层">
+      <div class="血条盒">
+        <div class="血条名">冷 风</div>
+        <div class="血条外"><div class="血条内" id="血我"></div></div>
+      </div>
+      <div class="血条盒" style="text-align:right;">
+        <div class="血条名">敌 手</div>
+        <div class="血条外"><div class="血条内 敌方" id="血敌"></div></div>
+      </div>
+    </div>
+    <div id="播报"></div>
+  </div>
+
+  <div id="控制层">
+    <div class="按组">
+      <div class="钮" id="钮左">←</div>
+      <div class="钮" id="钮右">→</div>
+    </div>
+    <div class="按组">
+      <div class="钮 防" id="钮防">🛡</div>
+      <div class="钮 技能" id="钮冰">❄<div class="冷遮"></div></div>
+      <div class="钮 技能" id="钮旋">🌀<div class="冷遮"></div></div>
+      <div class="钮 小" id="钮拳">👊</div>
+      <div class="钮 小" id="钮腿">🦵</div>
+      <div class="钮 小" id="钮跳">⬆</div>
+      <div class="钮 小" id="钮蹲">⬇</div>
+    </div>
+  </div>
+
+  <div id="品牌条">
+    <span class="冷">❄ 冷风 · 冷风格斗1基础版 ❄</span>
+    <span class="qq">QQ 3693465571</span>
+  </div>
+
+  <div id="遮罩">
+    <h1>冷风格斗</h1>
+    <h2>第一基础版</h2>
+    <div id="遮罩内容">
+      <div class="按钮" id="开始钮">开始对战</div>
+    </div>
+    <div class="小字">冷风工作室 · QQ 3693465571</div>
+  </div>
+</div>
+
+<script>
+/* 
+ * ============================================
+ *  冷风格斗1基础版
+ *  Copyright (c) 2026 lengfeng
+ *  联系 QQ: 3693465571
+ *  由 lengfeng 设计、开发、维护
+ *  未经授权禁止转售
+ * ============================================
+ */
+(function(){
+  // ========== 激活码 ==========
+  const 激活码表 = ['lengfeng666', 'lengfeng888'];
+  const 输入 = document.getElementById('激活码输入');
+  const 提示 = document.getElementById('激活提示');
+  const 进入钮 = document.getElementById('进入钮');
+  const 封面 = document.getElementById('封面');
+  const 游戏 = document.getElementById('游戏');
+
+  function 校验(){
+    const v = 输入.value.trim().toLowerCase();
+    if (激活码表.indexOf(v) >= 0){
+      提示.textContent = '✓ 激活成功，进入中…';
+      提示.classList.add('对');
+      setTimeout(()=>{
+        封面.style.display = 'none';
+        游戏.classList.add('显示');
+        初始化游戏();
+      }, 500);
+    } else {
+      提示.textContent = '✗ 激活码错误';
+      提示.classList.remove('对');
+    }
+  }
+  进入钮.addEventListener('click', 校验);
+  进入钮.addEventListener('touchstart', e=>{ e.preventDefault(); 校验(); }, {passive:false});
+  输入.addEventListener('keydown', e=>{ if(e.key==='Enter') 校验(); });
+
+  // ========== 基础 ==========
+  const 画布 = document.getElementById('画布');
+  const ctx = 画布.getContext('2d');
+  const 逻辑宽 = 1000, 逻辑高 = 600;
+  let 启动过 = false;
+
+  function 调整画布(){
+    const 区 = document.getElementById('画布区');
+    const w = 区.clientWidth, h = 区.clientHeight;
+    画布.width = 逻辑宽;
+    画布.height = 逻辑高;
+    const 比 = 逻辑宽 / 逻辑高;
+    let 实宽, 实高;
+    if (w / h > 比){ 实高 = h; 实宽 = h * 比; }
+    else { 实宽 = w; 实高 = w / 比; }
+    画布.style.width = 实宽 + 'px';
+    画布.style.height = 实高 + 'px';
+    画布.style.left = ((w - 实宽)/2) + 'px';
+    画布.style.top = ((h - 实高)/2) + 'px';
+  }
+  window.addEventListener('resize', 调整画布);
+  window.addEventListener('orientationchange', ()=>{ setTimeout(调整画布, 200); });
+
+  // ========== 状态 ==========
+  const 状态 = { 运行中:false, 结束:false, 时间:0, 屏幕震:0, 命中定格:0 };
+
+  const 我 = {
+    x: 280, y: 540, 面朝:1,
+    动作:'待机', 动作计时:0, 动作总帧:0,
+    走路相位:0, 呼吸相位:0,
+    血量:1000, 受击闪:0, 硬直:0, 击退:0,
+    技能冷却:0, 蹲下:false, 跳跃:0, 跳跃中:false,
+    连击:0, 连击计时:0
+  };
+  const 敌 = {
+    x: 720, y: 540, 面朝:-1,
+    动作:'待机', 动作计时:0, 动作总帧:0,
+    走路相位:0, 呼吸相位:0,
+    血量:1000, 受击闪:0, 硬直:0, 击退:0,
+    AI计时:0, 技能冷却:0, 蹲下:false, 跳跃:0, 跳跃中:false,
+    连击:0, 连击计时:0, AI意图:'靠近'
+  };
+
+  const 按 = { 左:false, 右:false, 防:false, 蹲:false };
+
+  let 特效列表 = [];
+  let 飞行物列表 = [];
+
+  // ========== 音效 ==========
+  let 音频上下文 = null;
+  function 初始化音频(){
+    if (音频上下文) return;
+    try { 音频上下文 = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ 音频上下文 = null; }
+  }
+  document.body.addEventListener('touchstart', 初始化音频, { once:true, passive:true });
+  document.body.addEventListener('click', 初始化音频, { once:true });
+
+  function 播放音效(类型){
+    if (!音频上下文) return;
+    if (音频上下文.state === 'suspended') 音频上下文.resume();
+    const 现在 = 音频上下文.currentTime;
+    const 主 = 音频上下文.createGain();
+    主.connect(音频上下文.destination);
+
+    if (类型 === '出拳风声' || 类型 === '踢腿风声'){
+      const 时长 = 类型 === '踢腿风声' ? 0.16 : 0.11;
+      const 缓冲 = 音频上下文.createBuffer(1, 音频上下文.sampleRate * 时长, 音频上下文.sampleRate);
+      const d = 缓冲.getChannelData(0);
+      for (let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * (1 - i/d.length);
+      const 源 = 音频上下文.createBufferSource(); 源.buffer = 缓冲;
+      const f = 音频上下文.createBiquadFilter();
+      f.type = 'bandpass'; f.frequency.value = 类型==='踢腿风声'?600:950; f.Q.value = 1.5;
+      主.gain.setValueAtTime(0.16, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 时长);
+      源.connect(f).connect(主);
+      源.start(现在); 源.stop(现在 + 时长);
+    }
+    else if (类型 === '命中'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(200, 现在);
+      o.frequency.exponentialRampToValueAtTime(55, 现在 + 0.12);
+      主.gain.setValueAtTime(0.32, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.15);
+      o.connect(主); o.start(现在); o.stop(现在 + 0.15);
+    }
+    else if (类型 === '格挡'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(1300, 现在);
+      o.frequency.exponentialRampToValueAtTime(820, 现在 + 0.08);
+      主.gain.setValueAtTime(0.14, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.1);
+      o.connect(主); o.start(现在); o.stop(现在 + 0.1);
+    }
+    else if (类型 === '跳跃'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(400, 现在);
+      o.frequency.exponentialRampToValueAtTime(800, 现在 + 0.12);
+      主.gain.setValueAtTime(0.12, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.15);
+      o.connect(主); o.start(现在); o.stop(现在 + 0.15);
+    }
+    else if (类型 === '落地'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(150, 现在);
+      o.frequency.exponentialRampToValueAtTime(60, 现在 + 0.1);
+      主.gain.setValueAtTime(0.2, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.12);
+      o.connect(主); o.start(现在); o.stop(现在 + 0.12);
+    }
+    else if (类型 === '冰霜发射'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(1800, 现在);
+      o.frequency.exponentialRampToValueAtTime(900, 现在 + 0.15);
+      主.gain.setValueAtTime(0.12, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.18);
+      o.connect(主); o.start(现在); o.stop(现在 + 0.18);
+    }
+    else if (类型 === '旋风发射'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(300, 现在);
+      o.frequency.exponentialRampToValueAtTime(700, 现在 + 0.15);
+      const f = 音频上下文.createBiquadFilter(); f.type='lowpass'; f.frequency.value=1200;
+      主.gain.setValueAtTime(0.14, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.2);
+      o.connect(f).connect(主); o.start(现在); o.stop(现在 + 0.2);
+    }
+    else if (类型 === '爆炸'){
+      const o = 音频上下文.createOscillator();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(120, 现在);
+      o.frequency.exponentialRampToValueAtTime(40, 现在 + 0.25);
+      const 噪 = 音频上下文.createBufferSource();
+      const 缓冲 = 音频上下文.createBuffer(1, 音频上下文.sampleRate * 0.25, 音频上下文.sampleRate);
+      const d = 缓冲.getChannelData(0);
+      for (let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * (1 - i/d.length);
+      噪.buffer = 缓冲;
+      const nf = 音频上下文.createBiquadFilter(); nf.type='lowpass'; nf.frequency.value=600;
+      const ng = 音频上下文.createGain(); ng.gain.setValueAtTime(0.15, 现在); ng.gain.exponentialRampToValueAtTime(0.001, 现在+0.25);
+      主.gain.setValueAtTime(0.25, 现在);
+      主.gain.exponentialRampToValueAtTime(0.001, 现在 + 0.3);
+      o.connect(主);
+      噪.connect(nf).connect(ng).connect(音频上下文.destination);
+      o.start(现在); o.stop(现在 + 0.3);
+      噪.start(现在); 噪.stop(现在 + 0.25);
+    }
+    else if (类型 === '胜利'){
+      [523,659,784,1046].forEach((f,i)=>{
+        const o = 音频上下文.createOscillator(); o.type='sine'; o.frequency.value=f;
+        const g = 音频上下文.createGain();
+        g.gain.setValueAtTime(0.14, 现在 + i*0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, 现在 + i*0.12 + 0.25);
+        o.connect(g).connect(音频上下文.destination);
+        o.start(现在 + i*0.12); o.stop(现在 + i*0.12 + 0.25);
+      });
+    }
+    else if (类型 === '失败'){
+      [392,330,262,196].forEach((f,i)=>{
+        const o = 音频上下文.createOscillator(); o.type='triangle'; o.frequency.value=f;
+        const g = 音频上下文.createGain();
+        g.gain.setValueAtTime(0.14, 现在 + i*0.14);
+        g.gain.exponentialRampToValueAtTime(0.001, 现在 + i*0.14 + 0.3);
+        o.connect(g).connect(音频上下文.destination);
+        o.start(现在 + i*0.14); o.stop(现在 + i*0.14 + 0.3);
+      });
+    }
+  }
+
+  // ========== 按钮 ==========
+  function 绑定按住(元素, 键){
+    元素.addEventListener('touchstart', e=>{ e.preventDefault(); 按[键]=true; }, {passive:false});
+    元素.addEventListener('touchend',   e=>{ e.preventDefault(); 按[键]=false; }, {passive:false});
+    元素.addEventListener('touchcancel',e=>{ e.preventDefault(); 按[键]=false; }, {passive:false});
+    元素.addEventListener('mousedown',  e=>{ e.preventDefault(); 按[键]=true; });
+    元素.addEventListener('mouseup',    e=>{ e.preventDefault(); 按[键]=false; });
+    元素.addEventListener('mouseleave', e=>{ 按[键]=false; });
+  }
+  绑定按住(document.getElementById('钮左'), '左');
+  绑定按住(document.getElementById('钮右'), '右');
+  绑定按住(document.getElementById('钮防'), '防');
+  绑定按住(document.getElementById('钮蹲'), '蹲');
+
+  function 触发动作(名, 总帧){
+    if (!状态.运行中 || 状态.结束) return;
+    if (我.硬直>0 || 我.技能冷却>0) return;
+    if (我.动作 !== '待机') return;
+    if (我.跳跃中) return;
+    我.动作 = 名; 我.动作总帧 = 总帧; 我.动作计时 = 0;
+    if (名 === '出拳') 播放音效('出拳风声');
+    if (名 === '踢腿') 播放音效('踢腿风声');
+  }
+  function 触发技能(名){
+    if (!状态.运行中 || 状态.结束) return;
+    if (我.硬直>0 || 我.技能冷却>0) return;
+    if (我.动作 !== '待机') return;
+    if (我.跳跃中) return;
+    我.动作 = 名; 我.动作总帧 = 24;
+    我.动作计时 = 0; 我.技能冷却 = 120;
+    弹播报(名 === '冰霜弹' ? '❄ 冰霜弹 ❄' : '🌀 旋风刃 🌀', 名 === '冰霜弹' ? '冰' : '风');
+    if (名 === '冰霜弹') 播放音效('冰霜发射');
+    if (名 === '旋风刃') 播放音效('旋风发射');
+  }
+  function 触发跳跃(){
+    if (!状态.运行中 || 状态.结束) return;
+    if (我.硬直>0 || 我.跳跃中 || 我.动作 !== '待机') return;
+    我.跳跃中 = true; 我.跳跃 = 0;
+    播放音效('跳跃');
+  }
+
+  document.getElementById('钮拳').addEventListener('touchstart', e=>{ e.preventDefault(); 触发动作('出拳',16); }, {passive:false});
+  document.getElementById('钮腿').addEventListener('touchstart', e=>{ e.preventDefault(); 触发动作('踢腿',20); }, {passive:false});
+  document.getElementById('钮跳').addEventListener('touchstart', e=>{ e.preventDefault(); 触发跳跃(); }, {passive:false});
+  document.getElementById('钮冰').addEventListener('touchstart', e=>{ e.preventDefault(); 触发技能('冰霜弹'); }, {passive:false});
+  document.getElementById('钮旋').addEventListener('touchstart', e=>{ e.preventDefault(); 触发技能('旋风刃'); }, {passive:false});
+
+  document.getElementById('钮拳').addEventListener('mousedown', e=>{ e.preventDefault(); 触发动作('出拳',16); });
+  document.getElementById('钮腿').addEventListener('mousedown', e=>{ e.preventDefault(); 触发动作('踢腿',20); });
+  document.getElementById('钮跳').addEventListener('mousedown', e=>{ e.preventDefault(); 触发跳跃(); });
+  document.getElementById('钮冰').addEventListener('mousedown', e=>{ e.preventDefault(); 触发技能('冰霜弹'); });
+  document.getElementById('钮旋').addEventListener('mousedown', e=>{ e.preventDefault(); 触发技能('旋风刃'); });
+
+  // 播报
+  const 播报元素 = document.getElementById('播报');
+  let 播报计时 = 0;
+  function 弹播报(文字, 类){
+    播报元素.textContent = 文字;
+    播报元素.className = '显 ' + (类||'');
+    播报计时 = 45;
+  }
+
+  // ========== 遮罩/开始 ==========
+  const 遮罩 = document.getElementById('遮罩');
+  const 遮罩内容 = document.getElementById('遮罩内容');
+  document.getElementById('开始钮').addEventListener('click', 开始游戏);
+  document.getElementById('开始钮').addEventListener('touchstart', e=>{ e.preventDefault(); 开始游戏(); }, {passive:false});
+
+  function 开始游戏(){
+    我.x=280; 我.y=540; 我.面朝=1; 我.血量=1000;
+    我.动作='待机'; 我.动作计时=0; 我.硬直=0; 我.受击闪=0; 我.击退=0;
+    我.技能冷却=0; 我.呼吸相位=0; 我.蹲下=false; 我.跳跃中=false; 我.跳跃=0;
+    我.连击=0; 我.连击计时=0;
+    敌.x=720; 敌.y=540; 敌.面朝=-1; 敌.血量=1000;
+    敌.动作='待机'; 敌.动作计时=0; 敌.硬直=0; 敌.受击闪=0; 敌.击退=0;
+    敌.AI计时=0; 敌.呼吸相位=0; 敌.技能冷却=0; 敌.蹲下=false; 敌.跳跃中=false; 敌.跳跃=0;
+    敌.连击=0; 敌.连击计时=0; 敌.AI意图='靠近';
+    特效列表=[]; 飞行物列表=[];
+    状态.运行中=true; 状态.结束=false; 状态.时间=0; 状态.屏幕震=0; 状态.命中定格=0;
+    遮罩.classList.add('隐藏');
+    setTimeout(()=>{ 遮罩.style.display='none'; }, 350);
+  }
+  function 结束游戏(结果){
+    状态.结束=true; 状态.运行中=false;
+    if (结果.indexOf('赢') >= 0) 播放音效('胜利'); else 播放音效('失败');
+    遮罩.style.display='flex';
+    遮罩.classList.remove('隐藏');
+    遮罩内容.innerHTML = '<div class="结果">'+结果+'</div><div class="按钮" id="再来钮">再来一局</div>';
+    const 再来 = document.getElementById('再来钮');
+    再来.addEventListener('click', ()=>{ 遮罩.classList.add('隐藏'); setTimeout(()=>{ 开始游戏(); 遮罩.classList.remove('隐藏'); }, 50); });
+    再来.addEventListener('touchstart', e=>{ e.preventDefault(); 遮罩.classList.add('隐藏'); setTimeout(()=>{ 开始游戏(); 遮罩.classList.remove('隐藏'); }, 50); }, {passive:false});
+  }
+
+  // ========== 更新 ==========
+  function 更新(){
+    if (!状态.运行中 || 状态.结束) return;
+    状态.时间++;
+
+    // 命中定格
+    if (状态.命中定格 > 0){
+      状态.命中定格--;
+      return;
+    }
+
+    我.呼吸相位 += 0.07;
+    敌.呼吸相位 += 0.07;
+    if (状态.屏幕震>0) 状态.屏幕震 *= 0.85;
+    if (我.技能冷却>0) 我.技能冷却--;
+    if (敌.技能冷却>0) 敌.技能冷却--;
+    if (我.连击计时>0){ 我.连击计时--; if(我.连击计时===0) 我.连击=0; }
+    if (敌.连击计时>0){ 敌.连击计时--; if(敌.连击计时===0) 敌.连击=0; }
+    if (播报计时>0){ 播报计时--; if(播报计时===0) 播报元素.classList.remove('显'); }
+
+    if (我.受击闪>0) 我.受击闪--;
+    if (我.硬直>0) 我.硬直--;
+    if (我.击退>0){ 我.x += 我.面朝 * -3; 我.击退--; }
+    if (敌.受击闪>0) 敌.受击闪--;
+    if (敌.硬直>0) 敌.硬直--;
+    if (敌.击退>0){ 敌.x += 敌.面朝 * -3; 敌.击退--; }
+
+    if (我.跳跃中){
+      我.跳跃 += 0.35;
+      if (我.跳跃 >= Math.PI){ 我.跳跃中=false; 我.跳跃=0; 播放音效('落地'); }
+    }
+    if (敌.跳跃中){
+      敌.跳跃 += 0.35;
+      if (敌.跳跃 >= Math.PI){ 敌.跳跃中=false; 敌.跳跃=0; 播放音效('落地'); }
+    }
+
+    // 我方动作
+    if (我.动作 !== '待机'){
+      我.动作计时++;
+      if (我.动作==='出拳' && 我.动作计时===8) 判定攻击(我, 敌, 40, 110, 10, '拳');
+      if (我.动作==='踢腿' && 我.动作计时===11) 判定攻击(我, 敌, 60, 120, 12, '腿');
+      if (我.动作==='冰霜弹' && 我.动作计时===14){
+        飞行物列表.push({ x: 我.x + 我.面朝*30, y: 我.y - 130, vx: 我.面朝*11, 类型:'冰霜弹', 伤害:90, 面朝:我.面朝 });
+      }
+      if (我.动作==='旋风刃' && 我.动作计时===14){
+        飞行物列表.push({ x: 我.x + 我.面朝*30, y: 我.y - 120, vx: 我.面朝*12, 类型:'旋风刃', 伤害:100, 面朝:我.面朝 });
+      }
+      if (我.动作计时 >= 我.动作总帧){ 我.动作='待机'; 我.动作计时=0; }
+    }
+
+    // 敌方动作
+    if (敌.动作 !== '待机'){
+      敌.动作计时++;
+      if (敌.动作==='出拳' && 敌.动作计时===8) 判定攻击(敌, 我, 35, 110, 10, '拳');
+      if (敌.动作==='踢腿' && 敌.动作计时===11) 判定攻击(敌, 我, 55, 120, 12, '腿');
+      if (敌.动作==='冰霜弹' && 敌.动作计时===14){
+        飞行物列表.push({ x: 敌.x + 敌.面朝*30, y: 敌.y - 130, vx: 敌.面朝*11, 类型:'冰霜弹', 伤害:90, 面朝:敌.面朝 });
+      }
+      if (敌.动作==='旋风刃' && 敌.动作计时===14){
+        飞行物列表.push({ x: 敌.x + 敌.面朝*30, y: 敌.y - 120, vx: 敌.面朝*12, 类型:'旋风刃', 伤害:100, 面朝:敌.面朝 });
+      }
+      if (敌.动作计时 >= 敌.动作总帧){ 敌.动作='待机'; 敌.动作计时=0; }
+    }
+
+    // 我方移动
+    if (我.硬直<=0 && 我.动作==='待机' && !我.跳跃中){
+      我.蹲下 = 按.蹲;
+      if (!我.蹲下){
+        let 速 = 4.5;
+        if (按.左){ 我.x -= 速; 我.面朝=-1; 我.走路相位=(我.走路相位+0.3)%(Math.PI*2); }
+        else if (按.右){ 我.x += 速; 我.面朝=1; 我.走路相位=(我.走路相位+0.3)%(Math.PI*2); }
+        else { 我.走路相位 *= 0.85; }
+      } else {
+        我.走路相位 *= 0.85;
+      }
+    } else { 我.蹲下 = false; }
+    if (按.防 && 我.硬直<=0 && 我.动作==='待机' && !我.跳跃中){
+      我.动作='防御'; 我.动作总帧=6; 我.动作计时=0;
+    }
+
+    if (我.x<60) 我.x=60;
+    if (我.x>逻辑宽-60) 我.x=逻辑宽-60;
+
+    // ========== 敌方 AI 强化 ==========
+    敌.AI计时++;
+    const 距离 = Math.abs(我.x - 敌.x);
+    敌.面朝 = (我.x < 敌.x) ? -1 : 1;
+
+    // 检测飞行物
+    for (let i=0;i<飞行物列表.length;i++){
+      const 物 = 飞行物列表[i];
+      if (物.面朝 !== 敌.面朝 && Math.abs(物.x - 敌.x) < 220 && Math.abs(物.x - 敌.x) > 70){
+        if (敌.动作==='待机' && !敌.跳跃中 && Math.random() < 0.1){
+          敌.跳跃中=true; 敌.跳跃=0;
+          播放音效('跳跃');
+        } else if (敌.动作==='待机' && Math.random() < 0.1){
+          敌.蹲下 = true;
+        }
+        break;
+      }
+    }
+
+    if (敌.硬直<=0 && 敌.动作==='待机' && !敌.跳跃中){
+      if (距离 > 200){
+        if (敌.技能冷却<=0 && Math.random() < 0.025){
+          敌.动作 = Math.random()<0.5?'冰霜弹':'旋风刃';
+          敌.动作总帧=24; 敌.动作计时=0; 敌.技能冷却=120;
+          弹播报(敌.动作 === '冰霜弹' ? '❄ 冰霜弹 ❄' : '🌀 旋风刃 🌀', 敌.动作 === '冰霜弹' ? '冰' : '风');
+          if (敌.动作==='冰霜弹') 播放音效('冰霜发射'); else 播放音效('旋风发射');
+        } else {
+          if (敌.AI计时 % 2 === 0){
+            敌.x += 敌.面朝 * 3.4;
+            敌.走路相位 = (敌.走路相位+0.3)%(Math.PI*2);
+          }
+        }
+      } else if (距离 > 100){
+        敌.走路相位 *= 0.9;
+        if (敌.技能冷却<=0 && Math.random() < 0.02){
+          敌.动作 = Math.random()<0.5?'冰霜弹':'旋风刃';
+          敌.动作总帧=24; 敌.动作计时=0; 敌.技能冷却=120;
+          弹播报(敌.动作 === '冰霜弹' ? '❄ 冰霜弹 ❄' : '🌀 旋风刃 🌀', 敌.动作 === '冰霜弹' ? '冰' : '风');
+          if (敌.动作==='冰霜弹') 播放音效('冰霜发射'); else 播放音效('旋风发射');
+        } else if (Math.random() < 0.03){
+          敌.x -= 敌.面朝 * 3;
+        } else if (Math.random() < 0.05){
+          敌.x += 敌.面朝 * 3;
+        } else if (敌.AI计时 % 25 === 0){
+          敌.动作='出拳'; 敌.动作总帧=16; 敌.动作计时=0;
+        }
+      } else {
+        // 抓我方硬直反击
+        if (我.硬直 > 5 && Math.random() < 0.5){
+          敌.动作='出拳'; 敌.动作总帧=16; 敌.动作计时=0;
+        } else if (Math.random() < 0.35){
+          敌.动作='防御'; 敌.动作总帧=6; 敌.动作计时=0;
+        } else if (敌.AI计时 % 18 === 0){
+          敌.动作='出拳'; 敌.动作总帧=16; 敌.动作计时=0;
+        } else if (敌.AI计时 % 18 === 9){
+          敌.动作='踢腿'; 敌.动作总帧=20; 敌.动作计时=0;
+        } else if (Math.random() < 0.02){
+          敌.蹲下 = !敌.蹲下;
+        }
+      }
+    }
+    if (敌.x<60) 敌.x=60;
+    if (敌.x>逻辑宽-60) 敌.x=逻辑宽-60;
+
+    // 飞行物
+    飞行物列表 = 飞行物列表.filter(物=>{
+      物.x += 物.vx;
+      const 目标 = (物.面朝 === 1) ? 敌 : 我;
+      if (Math.abs(物.x - 目标.x) < 40 && Math.abs(物.y - (目标.y - 100)) < 70){
+        let 减伤 = 1;
+        if (目标.动作 === '防御') 减伤 = 0.1;
+        目标.血量 -= 物.伤害 * 减伤;
+        目标.受击闪 = 12;
+        目标.硬直 = 18;
+        目标.击退 = 10;
+        播放音效('爆炸');
+        加特效({ 类型:'爆炸', x: 物.x, y: 物.y, 寿命:20, 最大寿命:20 });
+        for (let i=0;i<12;i++) 加特效({ 类型:'冰晶', x: 物.x + (Math.random()-0.5)*60, y: 物.y + (Math.random()-0.5)*60, 寿命:30, 最大寿命:30, 大小:3+Math.random()*5 });
+        状态.屏幕震 = 14;
+        状态.命中定格 = 4;
+        物.面朝 === 1 ? 我.连击++ : 敌.连击++;
+        物.面朝 === 1 ? 我.连击计时=90 : 敌.连击计时=90;
+        if (我.连击 >= 6) 弹开(我, 敌, 1);
+        if (敌.连击 >= 6) 弹开(敌, 我, -1);
+        return false;
+      }
+      if (物.x < -50 || 物.x > 逻辑宽 + 50) return false;
+      return true;
+    });
+
+    // 特效
+    特效列表 = 特效列表.filter(f=>{
+      f.寿命--;
+      if (f.类型==='冰晶'){ f.x += (Math.random()-0.5)*2; f.y += (Math.random()-0.5)*2; }
+      if (f.类型==='火花' && f.粒子){
+        f.粒子.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.4; p.寿命--; });
+        f.粒子 = f.粒子.filter(p=>p.寿命>0);
+      }
+      return f.寿命 > 0;
+    });
+
+    // 血条
+    if (我.血量<0) 我.血量=0;
+    if (敌.血量<0) 敌.血量=0;
+    document.getElementById('血我').style.width = (我.血量/10) + '%';
+    document.getElementById('血敌').style.width = (敌.血量/10) + '%';
+
+    const 冰钮 = document.getElementById('钮冰');
+    const 旋钮 = document.getElementById('钮旋');
+    const 冷却比 = 我.技能冷却 / 120;
+    冰钮.querySelector('.冷遮').style.setProperty('--角度', (冷却比*360)+'deg');
+    旋钮.querySelector('.冷遮').style.setProperty('--角度', (冷却比*360)+'deg');
+
+    if (我.血量<=0 && !状态.结束) 结束游戏('❄ 你输了 ❄');
+    else if (敌.血量<=0 && !状态.结束) 结束游戏('❄ 你赢了 ❄');
+  }
+
+  function 弹开(攻, 守, 方向){
+    攻.x = 方向 === 1 ? 130 : 逻辑宽 - 130;
+    守.x = 方向 === 1 ? 逻辑宽 - 130 : 130;
+    攻.连击 = 0; 守.连击 = 0;
+    攻.连击计时 = 0; 守.连击计时 = 0;
+    加特效({ 类型:'冲击波', x: 逻辑宽/2, y: 300, 寿命:30, 最大寿命:30 });
+    状态.屏幕震 = 16;
+    状态.命中定格 = 6;
+    播放音效('爆炸');
+  }
+
+  function 判定攻击(攻击者, 被攻击者, 伤害, 阈值, 硬直帧, 类型){
+    if (攻击者.跳跃中) return;
+    const 距离 = Math.abs(攻击者.x - 被攻击者.x);
+    if (距离 > 阈值) return;
+    const 方向对 = (攻击者.面朝===1 && 被攻击者.x > 攻击者.x) || (攻击者.面朝===-1 && 被攻击者.x < 攻击者.x);
+    if (!方向对 && 距离 > 75) return;
+
+    if (类型 === '拳' && 被攻击者.蹲下){
+      加特效({ 类型:'闪避', x: 被攻击者.x, y: 被攻击者.y - 60, 寿命:12, 最大寿命:12 });
+      return;
+    }
+    if (类型 === '腿' && 被攻击者.跳跃中){
+      加特效({ 类型:'闪避', x: 被攻击者.x, y: 被攻击者.y - 180, 寿命:12, 最大寿命:12 });
+      return;
+    }
+
+    if (被攻击者.动作 === '防御'){
+      被攻击者.血量 -= Math.max(1, Math.floor(伤害*0.1));
+      被攻击者.受击闪 = 4;
+      播放音效('格挡');
+      加特效({ 类型:'格挡', x: 被攻击者.x, y: 被攻击者.y-130, 寿命:12, 最大寿命:12 });
+    } else {
+      被攻击者.血量 -= 伤害;
+      被攻击者.受击闪 = 10;
+      被攻击者.硬直 = 硬直帧;
+      被攻击者.击退 = Math.floor(硬直帧*0.6);
+      攻击者.连击++;
+      攻击者.连击计时 = 90;
+      播放音效('命中');
+      加特效({ 类型:'命中', x: 被攻击者.x, y: 被攻击者.y-130, 寿命:14, 最大寿命:14 });
+      加特效({ 类型:'火花', x: 被攻击者.x, y: 被攻击者.y-130, 寿命:20, 最大寿命:20, 粒子: 生成火花粒子(被攻击者.x, 被攻击者.y-130) });
+      状态.屏幕震 = Math.max(状态.屏幕震, 伤害*0.4);
+      状态.命中定格 = 3;
+
+      if (攻击者.连击 >= 6){
+        弹开(攻击者, 被攻击者, 攻击者.面朝);
+      }
+    }
+  }
+
+  function 生成火花粒子(x, y){
+    const 粒子 = [];
+    for (let i=0;i<10;i++){
+      粒子.push({
+        x, y,
+        vx: (Math.random()-0.5)*9,
+        vy: (Math.random()-0.5)*9 - 2,
+        寿命: 12 + Math.random()*10,
+        大小: 2 + Math.random()*3
+      });
+    }
+    return 粒子;
+  }
+
+  function 加特效(f){ 特效列表.push(f); }// ========== 场景绘制 ==========
+  function 画背景(){
+    const 天 = ctx.createLinearGradient(0,0,0,430);
+    天.addColorStop(0,'#a8cdf0');
+    天.addColorStop(0.45,'#7fb2e5');
+    天.addColorStop(1,'#4a7a9c');
+    ctx.fillStyle = 天;
+    ctx.fillRect(0,0,逻辑宽,430);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    function 云(x,y,s){
+      ctx.beginPath();
+      ctx.ellipse(x, y, 60*s, 30*s, 0,0,Math.PI*2);
+      ctx.ellipse(x+55*s, y-9*s, 68*s, 34*s, 0,0,Math.PI*2);
+      ctx.ellipse(x-50*s, y+3*s, 52*s, 26*s, 0,0,Math.PI*2);
+      ctx.fill();
+    }
+    云(160,90,1); 云(480,65,0.85); 云(760,105,1.1);
+
+    ctx.fillStyle = '#8fadcc';
+    ctx.beginPath();
+    ctx.moveTo(0,410);
+    ctx.lineTo(130,280); ctx.lineTo(260,360); ctx.lineTo(390,240);
+    ctx.lineTo(530,330); ctx.lineTo(680,220); ctx.lineTo(830,310);
+    ctx.lineTo(1000,290); ctx.lineTo(1000,440); ctx.lineTo(0,440);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = '#b3cde8';
+    ctx.beginPath();
+    ctx.moveTo(0,440);
+    ctx.lineTo(110,340); ctx.lineTo(240,410); ctx.lineTo(380,310);
+    ctx.lineTo(530,390); ctx.lineTo(680,300); ctx.lineTo(830,380);
+    ctx.lineTo(1000,350); ctx.lineTo(1000,460); ctx.lineTo(0,460);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = '#dae8f5';
+    ctx.beginPath();
+    ctx.moveTo(0,460);
+    ctx.lineTo(180,370); ctx.lineTo(340,440); ctx.lineTo(500,360);
+    ctx.lineTo(660,430); ctx.lineTo(820,360); ctx.lineTo(1000,410);
+    ctx.lineTo(1000,480); ctx.lineTo(0,480);
+    ctx.closePath(); ctx.fill();
+
+    const 地 = ctx.createLinearGradient(0,480,0,逻辑高);
+    地.addColorStop(0,'#f0f7ff');
+    地.addColorStop(0.5,'#c5dcef');
+    地.addColorStop(1,'#8fb0cc');
+    ctx.fillStyle = 地;
+    ctx.fillRect(0,480,逻辑宽,逻辑高-480);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 2;
+    for (let i=0;i<12;i++){
+      const y = 510 + i*8;
+      ctx.beginPath();
+      ctx.moveTo(30 + i*20, y);
+      ctx.lineTo(280 + i*40, y+4);
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.beginPath(); ctx.ellipse(110,560,90,26,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(880,580,110,30,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(500,570,100,22,0,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    for (let i=0;i<50;i++){
+      const t = 状态.时间*0.6 + i*97;
+      const x = (t*0.6 + i*53) % 逻辑宽;
+      const y = (t*1.4 + i*89) % 逻辑高;
+      const r = 1.2 + (i%3)*0.7;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // ========== 画角色 ==========
+  function 画角色(c, 主题, 名字){
+    const cx = c.x;
+    const 脚y = c.y;
+    const 面朝 = c.面朝;
+    const 受击 = c.受击闪 > 0;
+
+    const 头R = 17;
+    const 躯干高 = 72;
+    const 腿长 = 118;
+    const 髋y = 脚y - 腿长;
+    const 肩y = 髋y - 躯干高;
+    const 头中y = 肩y - 18 - 头R*0.3;
+
+    let 跳y = 0;
+    if (c.跳跃中){
+      跳y = -Math.sin(c.跳跃) * 140;
+    }
+    let 蹲压 = 0;
+    if (c.蹲下) 蹲压 = 30;
+
+    let 摆臂 = 0.3, 抬腿 = 0, 身体起伏 = Math.sin(c.呼吸相位)*1.5;
+    let 出拳伸 = 0, 出腿伸 = 0;
+
+    const 动作 = c.动作;
+    const 进度 = c.动作总帧 ? c.动作计时 / c.动作总帧 : 0;
+
+    if (动作 === '出拳'){
+      if (进度 < 0.35) 出拳伸 = -0.25 * (进度/0.35);
+      else if (进度 < 0.6) 出拳伸 = 1.0 * ((进度-0.35)/0.25);
+      else 出拳伸 = 1.0 - 0.8 * ((进度-0.6)/0.4);
+    }
+    if (动作 === '踢腿'){
+      if (进度 < 0.35) 出腿伸 = -0.25 * (进度/0.35);
+      else if (进度 < 0.6) 出腿伸 = 1.0 * ((进度-0.35)/0.25);
+      else 出腿伸 = 1.0 - 0.8 * ((进度-0.6)/0.4);
+    }
+    if (动作 === '冰霜弹' || 动作 === '旋风刃'){
+      if (进度 < 0.5) 出拳伸 = -0.4 * (进度/0.5);
+      else 出拳伸 = 1.2 * ((进度-0.5)/0.5);
+    }
+    if (动作 === '防御'){
+      蹲压 = 3;
+    }
+    if (动作 === '待机' && c.走路相位 !== 0){
+      摆臂 = 0.3 + Math.sin(c.走路相位) * 0.32;
+      抬腿 = Math.sin(c.走路相位) * 0.25;
+    }
+
+    const 主色 = 主题.主, 深色 = 主题.深, 肤 = '#f5e2cb', 发色 = 主题.发;
+    const Y = (y)=>(y + 跳y + 蹲压);
+
+    ctx.save();
+
+    // 受击抖动
+    if (受击){
+      ctx.translate((Math.random()-0.5)*4, (Math.random()-0.5)*4);
+    }
+
+    // ===== 腿 =====
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = 受击 ? '#ffffff' : 深色;
+
+    ctx.beginPath();
+    ctx.moveTo(cx - 7, Y(髋y));
+    ctx.lineTo(cx - 13, Y(脚y) + (面朝===1 ? 抬腿*22 : 0));
+    ctx.stroke();
+
+    let 前腿末端x = cx + 13, 前腿末端y = Y(脚y) + (面朝===-1 ? 抬腿*22 : 0);
+    if (出腿伸 > 0.1){
+      前腿末端x = cx + 面朝 * (20 + 出腿伸 * 60);
+      前腿末端y = Y(脚y) - 出腿伸 * 70;
+    }
+    ctx.beginPath();
+    ctx.moveTo(cx + 7, Y(髋y));
+    ctx.lineTo(前腿末端x, 前腿末端y);
+    ctx.stroke();
+
+    ctx.fillStyle = 受击 ? '#ffffff' : '#1b2838';
+    ctx.beginPath();
+    ctx.ellipse(cx - 14, Y(脚y) - 3 + (面朝===1 ? 抬腿*22 : 0), 9, 7, 0, 0, Math.PI*2); ctx.fill();
+    if (出腿伸 > 0.1){
+      ctx.save();
+      ctx.translate(前腿末端x, 前腿末端y);
+      ctx.rotate(面朝 * -0.4);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.beginPath();
+      ctx.ellipse(cx + 14, Y(脚y) - 3 + (面朝===-1 ? 抬腿*22 : 0), 9, 7, 0, 0, Math.PI*2); ctx.fill();
+    }
+
+    // ===== 躯干 =====
+    ctx.fillStyle = 受击 ? '#ffffff' : 主色;
+    ctx.shadowColor = '#0a1a28';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.moveTo(cx - 20, Y(肩y));
+    ctx.lineTo(cx + 20, Y(肩y));
+    ctx.lineTo(cx + 16, Y(髋y) + 2);
+    ctx.lineTo(cx - 16, Y(髋y) + 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.13)';
+    ctx.beginPath();
+    ctx.moveTo(cx + 面朝*4, Y(肩y) + 4);
+    ctx.lineTo(cx + 面朝*20, Y(肩y));
+    ctx.lineTo(cx + 面朝*16, Y(髋y));
+    ctx.lineTo(cx + 面朝*4, Y(髋y));
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 受击 ? '#ffffff' : 主题.带;
+    ctx.beginPath();
+    ctx.roundRect(cx - 18, Y(髋y) - 4, 36, 10, 5);
+    ctx.fill();
+
+    ctx.fillStyle = 受击 ? '#ffffff' : 主题.领;
+    ctx.beginPath();
+    ctx.ellipse(cx, Y(肩y) + 6, 13, 5, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 受击 ? '#ffffff' : 肤;
+    ctx.beginPath();
+    ctx.ellipse(cx, Y(肩y) - 4, 7, 6, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // ===== 头 =====
+    const 头y = Y(头中y + 身体起伏);
+    ctx.fillStyle = 受击 ? '#ffffff' : 肤;
+    ctx.beginPath();
+    ctx.ellipse(cx, 头y, 头R, 头R*1.12, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 受击 ? '#ffffff' : 发色;
+    ctx.beginPath();
+    ctx.ellipse(cx, 头y - 8, 头R + 3, 头R*0.85, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx + 面朝*3, 头y - 7, 头R*0.9, 头R*0.6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx - 12, 头y - 1, 6, 10, 0.2, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 受击 ? '#ffffff' : '#16212e';
+    ctx.beginPath();
+    ctx.ellipse(cx + 面朝*5, 头y - 1, 3.2, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx + 面朝*12, 头y - 1, 2.8, 3.6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(cx + 面朝*5.5, 头y - 2.5, 1.1, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 面朝*12.5, 头y - 2.5, 1, 0, Math.PI*2); ctx.fill();
+
+    ctx.strokeStyle = 受击 ? '#ffffff' : 发色;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(cx + 面朝*2, 头y - 7);
+    ctx.lineTo(cx + 面朝*9, 头y - 6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + 面朝*11, 头y - 6.5);
+    ctx.lineTo(cx + 面朝*16, 头y - 6);
+    ctx.stroke();
+
+    ctx.strokeStyle = 受击 ? '#ffffff' : '#9a6b4a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(cx + 面朝*5, 头y + 7);
+    ctx.lineTo(cx + 面朝*11, 头y + 7);
+    ctx.stroke();
+
+    // ===== 手臂 =====
+    ctx.lineWidth = 11;
+    ctx.strokeStyle = 受击 ? '#ffffff' : 深色;
+    ctx.lineCap = 'round';
+
+    const 肩后x = cx - 18;
+    const 肩后y = Y(肩y) + 6;
+    const 肘后x = 肩后x - 8;
+    const 肘后y = 肩后y + 34;
+    const 手后x = 肘后x + Math.sin(摆臂) * 12;
+    const 手后y = 肘后y + 36 - Math.cos(摆臂) * 6;
+    ctx.beginPath();
+    ctx.moveTo(肩后x, 肩后y);
+    ctx.lineTo(肘后x, 肘后y);
+    ctx.lineTo(手后x, 手后y);
+    ctx.stroke();
+    ctx.fillStyle = 受击 ? '#ffffff' : '#1b2838';
+    ctx.beginPath(); ctx.arc(手后x, 手后y, 7, 0, Math.PI*2); ctx.fill();
+
+    const 肩前x = cx + 18;
+    const 肩前y = Y(肩y) + 6;
+    let 肘前x = 肩前x + 8;
+    let 肘前y = 肩前y + 34;
+    let 手前x = 肘前x - Math.sin(摆臂) * 12 * (面朝===1?1:-1);
+    let 手前y = 肘前y + 36 - Math.cos(摆臂) * 6;
+
+    if (出拳伸 > 0.05){
+      肘前x = 肩前x + 面朝 * 24 * 出拳伸;
+      肘前y = 肩前y + 18 - 出拳伸*8;
+      手前x = 肘前x + 面朝 * 44 * 出拳伸;
+      手前y = 肘前y - 出拳伸*10;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(肩前x, 肩前y);
+    ctx.lineTo(肘前x, 肘前y);
+    ctx.lineTo(手前x, 手前y);
+    ctx.stroke();
+    ctx.fillStyle = 受击 ? '#ffffff' : '#1b2838';
+    ctx.beginPath(); ctx.arc(手前x, 手前y, 7.5, 0, Math.PI*2); ctx.fill();
+
+    if ((动作 === '出拳' || 动作 === '冰霜弹' || 动作 === '旋风刃') && 出拳伸 > 0.5){
+      ctx.strokeStyle = 'rgba(160,220,255,0.5)';
+      ctx.lineWidth = 4;
+      for (let i=1;i<=3;i++){
+        ctx.beginPath();
+        ctx.moveTo(肩前x, 肩前y);
+        ctx.lineTo(肘前x - 面朝*i*10, 肘前y);
+        ctx.stroke();
+      }
+    }
+    if (动作 === '踢腿' && 出腿伸 > 0.5){
+      ctx.strokeStyle = 'rgba(160,220,255,0.5)';
+      ctx.lineWidth = 4;
+      for (let i=1;i<=3;i++){
+        ctx.beginPath();
+        ctx.moveTo(cx + 7, Y(髋y));
+        ctx.lineTo(前腿末端x - 面朝*i*10, 前腿末端y);
+        ctx.stroke();
+      }
+    }
+    if ((动作 === '冰霜弹' || 动作 === '旋风刃') && 进度 > 0.4){
+      const 颜色 = 动作 === '冰霜弹' ? ['rgba(180,240,255,0.95)','rgba(80,180,255,0.6)','rgba(80,180,255,0)'] : ['rgba(220,180,255,0.95)','rgba(160,80,255,0.6)','rgba(160,80,255,0)'];
+      const g = ctx.createRadialGradient(手前x, 手前y, 0, 手前x, 手前y, 40);
+      g.addColorStop(0,颜色[0]); g.addColorStop(0.5,颜色[1]); g.addColorStop(1,颜色[2]);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(手前x, 手前y, 40, 0, Math.PI*2); ctx.fill();
+    }
+    if (动作 === '防御'){
+      ctx.strokeStyle = 'rgba(140,220,255,0.85)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, Y(肩y) + 40, 60, -Math.PI*0.75, Math.PI*0.75);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(140,220,255,0.15)';
+      ctx.beginPath();
+      ctx.arc(cx, Y(肩y) + 40, 60, -Math.PI*0.75, Math.PI*0.75);
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    if (名字){
+      ctx.fillStyle = 'rgba(20,40,60,0.75)';
+      ctx.beginPath();
+      ctx.roundRect(cx - 28, 脚y + 10, 56, 20, 10);
+      ctx.fill();
+      ctx.fillStyle = '#b7ddff';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(名字, cx, 脚y + 24);
+    }
+  }
+
+  // ========== 画飞行物 ==========
+  function 画飞行物(){
+    飞行物列表.forEach(物=>{
+      ctx.save();
+      if (物.类型 === '冰霜弹'){
+        const g = ctx.createRadialGradient(物.x, 物.y, 0, 物.x, 物.y, 26);
+        g.addColorStop(0,'rgba(230,250,255,0.95)');
+        g.addColorStop(0.5,'rgba(120,210,255,0.85)');
+        g.addColorStop(1,'rgba(80,180,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(物.x, 物.y, 26, 0, Math.PI*2); ctx.fill();
+        for (let i=1;i<=5;i++){
+          ctx.globalAlpha = 1 - i/6;
+          ctx.fillStyle = '#c8f0ff';
+          ctx.beginPath();
+          ctx.arc(物.x - 物.面朝*i*8, 物.y + Math.sin(状态.时间*0.4 + i)*3, 12 - i*1.8, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(物.x, 物.y, 9, 0, Math.PI*2); ctx.fill();
+      } else if (物.类型 === '旋风刃'){
+        ctx.translate(物.x, 物.y);
+        const 旋转 = 状态.时间 * 0.55;
+        ctx.rotate(旋转);
+        ctx.strokeStyle = '#c8a0ff';
+        ctx.lineWidth = 4;
+        for (let i=0;i<4;i++){
+          ctx.beginPath();
+          ctx.arc(0, 0, 16 + i*5, i*Math.PI/2, i*Math.PI/2 + Math.PI*0.6);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI*2); ctx.stroke();
+        ctx.rotate(-旋转);
+        for (let i=1;i<=4;i++){
+          ctx.globalAlpha = 1 - i/5;
+          ctx.fillStyle = '#a080ff';
+          ctx.beginPath();
+          ctx.arc(-物.面朝*i*10, 0, 8 - i, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    });
+  }
+
+  // ========== 画特效 ==========
+  function 画特效(){
+    特效列表.forEach(f=>{
+      const 生命比 = f.寿命 / f.最大寿命;
+      ctx.save();
+      if (f.类型 === '命中'){
+        ctx.globalAlpha = 生命比;
+        ctx.fillStyle = '#fff2a0';
+        const r = (1-生命比) * 30 + 10;
+        ctx.beginPath();
+        for (let i=0;i<8;i++){
+          const a = i * Math.PI/4;
+          const x1 = f.x + Math.cos(a) * r;
+          const y1 = f.y + Math.sin(a) * r;
+          const x2 = f.x + Math.cos(a + Math.PI/8) * r * 0.5;
+          const y2 = f.y + Math.sin(a + Math.PI/8) * r * 0.5;
+          if (i===0) ctx.moveTo(x1, y1); else ctx.lineTo(x1, y1);
+          ctx.lineTo(x2, y2);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+      else if (f.类型 === '火花' && f.粒子){
+        f.粒子.forEach(p=>{
+          ctx.fillStyle = '#ffd966';
+          ctx.globalAlpha = p.寿命 / 22;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.大小, 0, Math.PI*2); ctx.fill();
+        });
+      }
+      else if (f.类型 === '格挡'){
+        ctx.globalAlpha = 生命比;
+        ctx.strokeStyle = '#a8e0ff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 30 + (1-生命比)*20, 0, Math.PI*2);
+        ctx.stroke();
+      }
+      else if (f.类型 === '闪避'){
+        ctx.globalAlpha = 生命比;
+        ctx.strokeStyle = '#a0ffd0';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 25 + (1-生命比)*15, 0, Math.PI*2);
+        ctx.stroke();
+      }
+      else if (f.类型 === '爆炸'){
+        ctx.globalAlpha = 生命比 * 0.9;
+        const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, 80);
+        g.addColorStop(0,'rgba(255,255,255,0.95)');
+        g.addColorStop(0.3,'rgba(180,230,255,0.85)');
+        g.addColorStop(1,'rgba(80,180,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(f.x, f.y, 80, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 50 + (1-生命比)*40, 0, Math.PI*2);
+        ctx.stroke();
+      }
+      else if (f.类型 === '冰晶'){
+        ctx.globalAlpha = 生命比;
+        ctx.fillStyle = '#c8f0ff';
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.大小, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.大小*0.4, 0, Math.PI*2);
+        ctx.fill();
+      }
+      else if (f.类型 === '冲击波'){
+        ctx.globalAlpha = 生命比 * 0.8;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, (1-生命比)*400, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.strokeStyle = '#9fd4ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, (1-生命比)*400 + 20, 0, Math.PI*2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+  }
+
+  // ========== 主循环 ==========
+  function 主循环(){
+    更新();
+    ctx.clearRect(0,0,逻辑宽,逻辑高);
+    ctx.save();
+    if (状态.屏幕震 > 0.5){
+      const 震x = (Math.random()-0.5) * 状态.屏幕震;
+      const 震y = (Math.random()-0.5) * 状态.屏幕震;
+      ctx.translate(震x, 震y);
+    }
+
+    画背景();
+
+    if (我.x < 敌.x){
+      画角色(我, {主:'#3f6f96', 深:'#2a4b68', 带:'#9fc9e7', 领:'#c7e2f5', 发:'#2b3a4a'}, '冷风');
+      画角色(敌, {主:'#8a3a3a', 深:'#5c2626', 带:'#e0a0a0', 领:'#f0c8c8', 发:'#3a2020'}, '');
+    } else {
+      画角色(敌, {主:'#8a3a3a', 深:'#5c2626', 带:'#e0a0a0', 领:'#f0c8c8', 发:'#3a2020'}, '');
+      画角色(我, {主:'#3f6f96', 深:'#2a4b68', 带:'#9fc9e7', 领:'#c7e2f5', 发:'#2b3a4a'}, '冷风');
+    }
+
+    画飞行物();
+    画特效();
+    ctx.restore();
+
+    requestAnimationFrame(主循环);
+  }
+
+  // ========== 启动 ==========
+  function 初始化游戏(){
+    if (启动过) return;
+    启动过 = true;
+    调整画布();
+    主循环();
+    画布.addEventListener('touchstart', e=>e.preventDefault(), {passive:false});
+    画布.addEventListener('touchmove', e=>e.preventDefault(), {passive:false});
+
+    const 提示 = document.getElementById('横屏提示');
+    提示.classList.remove('隐');
+    setTimeout(()=>{
+      提示.classList.add('隐');
+    }, 1200);
+  }
+
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+    return this;
+  };
+
+})();
+</script>
+</body>
+</html>
